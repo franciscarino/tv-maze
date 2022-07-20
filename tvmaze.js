@@ -21,14 +21,18 @@ async function getShowsByTerm(term) {
   const newShow = await axios.get(BASE_URL, { params: { q: term } });
   console.log(newShow);
 
-  return [
-    {
-      id: newShow.data[0].show.id,
-      name: newShow.data[0].show.name,
-      summary: newShow.data[0].show.summary,
-      image: newShow.data[0].show.image.medium,
-    },
-  ];
+  let searchResults = [];
+
+  for (let i = 0; i < newShow.data.length; i++) {
+    searchResults.push({
+      id: newShow.data[i].show.id,
+      name: newShow.data[i].show.name,
+      summary: newShow.data[i].show.summary,
+      image: newShow.data[i].show.image.medium,
+    });
+  }
+  console.log("searchResults: ", searchResults);
+  return searchResults;
 }
 
 /** Given list of shows, create markup for each and to DOM */
