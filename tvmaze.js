@@ -4,6 +4,8 @@ const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 const BASE_URL = "https://api.tvmaze.com/search/shows/?";
+const NULL_IMG_URL =
+  "https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300";
 
 //data.show.id to get showId
 //
@@ -28,7 +30,9 @@ async function getShowsByTerm(term) {
       id: newShow.data[i].show.id,
       name: newShow.data[i].show.name,
       summary: newShow.data[i].show.summary,
-      image: newShow.data[i].show.image.medium,
+      image: newShow.data[i].show.image
+        ? newShow.data[i].show.image.medium
+        : NULL_IMG_URL,
     });
   }
   console.log("searchResults: ", searchResults);
@@ -41,11 +45,12 @@ function populateShows(shows) {
   $showsList.empty();
 
   for (let show of shows) {
+    console.log("show: ", show);
     const $show = $(
       `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
-              src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
+              src="${show.image}"
               alt="Bletchly Circle San Francisco"
               class="w-25 me-3">
            <div class="media-body">
