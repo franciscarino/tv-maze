@@ -3,7 +3,7 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
-const BASE_URL = 'https://api.tvmaze.com/search/shows';
+const BASE_URL = "https://api.tvmaze.com/search/shows/?";
 
 //data.show.id to get showId
 //
@@ -15,22 +15,21 @@ const BASE_URL = 'https://api.tvmaze.com/search/shows';
  *    (if no image URL given by API, put in a default image URL)
  */
 
-async function getShowsByTerm(searchTerm) {
+async function getShowsByTerm(term) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
 
-  let searchTerm = $('#searchForm-term').val();
-  const newShow = await axios.get(BASE_URL, {params: q = searchTerm});
+  const newShow = await axios.get(BASE_URL, { params: { q: term } });
+  console.log(newShow);
 
   return [
     {
-      id: data.show.id,
-      name: data.show.name,
-      summary: data.show.summary,
-      image: show.image.medium
-    }
-  ]
+      id: newShow.data[0].show.id,
+      name: newShow.data[0].show.name,
+      summary: newShow.data[0].show.summary,
+      image: newShow.data[0].show.image.medium,
+    },
+  ];
 }
-
 
 /** Given list of shows, create markup for each and to DOM */
 
@@ -39,7 +38,7 @@ function populateShows(shows) {
 
   for (let show of shows) {
     const $show = $(
-        `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
+      `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
               src="http://static.tvmaze.com/uploads/images/medium_portrait/160/401704.jpg"
@@ -54,11 +53,12 @@ function populateShows(shows) {
            </div>
          </div>
        </div>
-      `);
+      `
+    );
 
-    $showsList.append($show);  }
+    $showsList.append($show);
+  }
 }
-
 
 /** Handle search form submission: get shows from API and display.
  *    Hide episodes area (that only gets shown if they ask for episodes)
@@ -76,7 +76,6 @@ $searchForm.on("submit", async function (evt) {
   evt.preventDefault();
   await searchForShowAndDisplay();
 });
-
 
 /** Given a show ID, get from API and return (promise) array of episodes:
  *      { id, name, season, number }
