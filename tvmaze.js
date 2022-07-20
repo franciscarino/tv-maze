@@ -3,12 +3,9 @@
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
-const BASE_URL = "https://api.tvmaze.com/search/shows/?";
+const BASE_URL = "https://api.tvmaze.com/";
 const NULL_IMG_URL =
   "https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300";
-
-//data.show.id to get showId
-//
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -20,22 +17,23 @@ const NULL_IMG_URL =
 async function getShowsByTerm(term) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
 
-  const newShow = await axios.get(BASE_URL, { params: { q: term } });
-  console.log(newShow);
+  const searchedShowReponses = await axios.get(`${BASE_URL}search/shows/?`, { params: { q: term } });
+  console.log(searchedShowReponses);
 
   let searchResults = [];
 
-  for (let i = 0; i < newShow.data.length; i++) {
+  //map
+  for (let i = 0; i < searchedShowReponses.data.length; i++) {
     searchResults.push({
-      id: newShow.data[i].show.id,
-      name: newShow.data[i].show.name,
-      summary: newShow.data[i].show.summary,
-      image: newShow.data[i].show.image
-        ? newShow.data[i].show.image.medium
+      id: searchedShowReponses.data[i].show.id,
+      name: searchedShowReponses.data[i].show.name,
+      summary: searchedShowReponses.data[i].show.summary,
+      // checks for show image, if true returns medium src, if null, returns null img
+      image: searchedShowReponses.data[i].show.image
+        ? searchedShowReponses.data[i].show.image.medium
         : NULL_IMG_URL,
     });
   }
-  console.log("searchResults: ", searchResults);
   return searchResults;
 }
 
@@ -45,13 +43,12 @@ function populateShows(shows) {
   $showsList.empty();
 
   for (let show of shows) {
-    console.log("show: ", show);
     const $show = $(
       `<div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
          <div class="media">
            <img
               src="${show.image}"
-              alt="Bletchly Circle San Francisco"
+              alt="Bletchly Circle San Francisco" //update
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
@@ -90,8 +87,32 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+//https://api.tvmaze.com/shows/1/episodes
+
+async function getEpisodesOfShow(id) {
+
+  const episodesResponse = await axios.get(`${BASE_URL}shows/${id}/episodes`);
+
+  let episodesList = [];
+
+  for (let i = 0; i < episodesResponses.data.length; i++) {
+    episodesList.push({
+      id: episodesResponses.data[i].id,
+      name: episodesResponses.data[i].name,
+      season: episodesResponses.data[i].season,
+      number: episodesResponses.data[i].number
+    });
+  }
+  return episodesList;
+}
 
 /** Write a clear docstring for this function... */
 
-// function populateEpisodes(episodes) { }
+function populateEpisodes(episodes) {
+
+  for(let episode of episodes){
+
+    $('#episodesList').append($('<li>').text(`Episode: ${episode.name}, Season: ${episode.season}, Number: ${episode.number}`));
+
+  }
+}
