@@ -48,7 +48,7 @@ function populateShows(shows) {
          <div class="media">
            <img
               src="${show.image}"
-              alt="Bletchly Circle San Francisco" //update
+              alt="show image" //update
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
@@ -91,7 +91,7 @@ $searchForm.on("submit", async function (evt) {
 
 async function getEpisodesOfShow(id) {
 
-  const episodesResponse = await axios.get(`${BASE_URL}shows/${id}/episodes`);
+  const episodesResponses = await axios.get(`${BASE_URL}shows/${id}/episodes`);
 
   let episodesList = [];
 
@@ -106,13 +106,25 @@ async function getEpisodesOfShow(id) {
   return episodesList;
 }
 
-/** Write a clear docstring for this function... */
+/** Receives array of objects from getEpisodesOfShow and iterates thru and appends each object as list item to episodesList */
 
 function populateEpisodes(episodes) {
 
   for(let episode of episodes){
 
-    $('#episodesList').append($('<li>').text(`Episode: ${episode.name}, Season: ${episode.season}, Number: ${episode.number}`));
+    const episodeInfo = `Episode: ${episode.name}, Season: ${episode.season}, Number: ${episode.number}`;
 
+    $('#episodesList').append(`<li>${episodeInfo}</li>`);
+    $episodesArea.show();
   }
 }
+
+// // //conductor for getting and populating episodes
+async function getAndPopulateEpisodes(event){
+  const showID = $(event.target).closest('.Show').attr('data-show-id');
+  const showEpisodes = await getEpisodesOfShow(showID);
+  populateEpisodes(showEpisodes);
+}
+
+//parent
+$('#showsList').on('click','.Show-getEpisodes', getAndPopulateEpisodes);
